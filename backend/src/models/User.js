@@ -18,9 +18,10 @@ const userSchema = mongoose.Schema(
     },
     role: {
       type: String,
-      enum: ["user", "admin"],
+      enum: ["user", "admin", "superadmin"],
       default: "user",
     },
+    restaurant: { type: mongoose.Schema.Types.ObjectId, ref: "Restaurant" },
   },
   {
     timestamps: true,
