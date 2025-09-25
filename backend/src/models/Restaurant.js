@@ -2,11 +2,23 @@ import mongoose from "mongoose";
 
 const restaurantSchema = mongoose.Schema(
   {
+    owner: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+    },
     name: { type: String, required: true },
-    email: { type: String, required: true, unique: true },
-    isApproved: { type: Boolean, default: false },
-    subscriptionPlan: { type: String, default: "free" },
-    admin: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+    description: { type: String },
+    logo: { type: String },
+    address: { type: String, required: true },
+    phone: { type: String },
+    openingHours: { type: String },
+    status: {
+      type: String,
+      enum: ["pending", "approved", "rejected", "suspended"],
+      default: "pending",
+    },
+    commissionRate: { type: Number, default: 10 },
   },
   { timestamps: true }
 );

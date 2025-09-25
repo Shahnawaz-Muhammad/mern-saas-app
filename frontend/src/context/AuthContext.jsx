@@ -42,15 +42,19 @@ export function AuthProvider({ children }) {
     }
   };
 
-  const logout = async () => {
-    try {
-      await api.post("/auth/logout");
-    } catch (err) {
-      console.error("Logout failed", err);
-    } finally {
-      setUser(null);
-    }
-  };
+ const logout = async () => {
+  try {
+    const res = await api.post("/auth/logout");
+    console.log("Logout response:", res.data);
+  } catch (err) {
+    console.error("Logout failed:", err);
+    throw err; // rethrow if truly an error
+  } finally {
+    setUser(null);
+    localStorage.removeItem("user");
+  }
+};
+
 
   return (
     <AuthContext.Provider value={{ user, login, register, logout, loading }}>

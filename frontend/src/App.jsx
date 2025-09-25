@@ -1,36 +1,54 @@
-// src/App.js
 import { Routes, Route } from "react-router-dom";
 import Home from "./pages/Home";
 import Login from "./pages/auth/Login";
-import Dashboard from "./pages/dashboard/Dashboard";
-import AdminDashboard from "./pages/dashboard/AdminDashboard";
-import PrivateRoute from "./components/PrivateRoute";
-import RoleBasedRoute from "./components/RoleBasedRoute";
 import Register from "./pages/auth/Register";
+import DashboardLayout from "./components/layout/DashboardLayout";
+import Dashboard from "./pages/dashboard";
+import RoleBasedRoute from "./components/RoleBasedRoute";
+import PublicRoute from "./components/PublicRoute";
+import Users from "./pages/dashboard/superadmin/Users";
 
 function App() {
   return (
     <Routes>
+      {/* Public */}
       <Route path="/" element={<Home />} />
-      <Route path="/login" element={<Login />} />
-      <Route path="/register" element={<Register />} />
-
-      {/* Protected Route */}
       <Route
-        path="/dashboard"
+        path="/login"
         element={
-          <PrivateRoute>
-            <Dashboard />
-          </PrivateRoute>
+          <PublicRoute>
+            <Login />
+          </PublicRoute>
+        }
+      />
+      <Route
+        path="/register"
+        element={
+          <PublicRoute>
+            <Register />{" "}
+          </PublicRoute>
         }
       />
 
-      {/* Admin Only */}
+      {/* Protected */}
       <Route
-        path="/admin"
+        path="/dashboard"
         element={
-          <RoleBasedRoute allowedRoles={["admin"]}>
-            <AdminDashboard />
+          <RoleBasedRoute allowedRoles={["user", "admin", "superadmin"]}>
+            <DashboardLayout>
+              <Dashboard />
+            </DashboardLayout>
+          </RoleBasedRoute>
+        }
+      />
+
+      <Route
+        path="/users"
+        element={
+          <RoleBasedRoute allowedRoles={["superadmin"]}>
+            <DashboardLayout>
+              <Users />
+            </DashboardLayout>
           </RoleBasedRoute>
         }
       />

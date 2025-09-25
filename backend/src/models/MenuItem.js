@@ -1,25 +1,17 @@
 import mongoose from "mongoose";
 
-const menuItemSchema = mongoose.Schema(
+const menuItemSchema = new mongoose.Schema(
   {
     restaurant: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Restaurant",
       required: true,
     },
-    name: {
-      type: String,
-      required: true,
-    },
-    description: {
-      type: String,
-      required: true,
-    },
-    price: Number,
-    category: {
-      type: String,
-      required: true,
-    },
+    category: { type: mongoose.Schema.Types.ObjectId, ref: "MenuCategory" },
+    name: { type: String, required: true },
+    description: { type: String },
+    price: { type: Number, required: true },
+    image: { type: String },
     isAvailable: { type: Boolean, default: true },
   },
   { timestamps: true }
