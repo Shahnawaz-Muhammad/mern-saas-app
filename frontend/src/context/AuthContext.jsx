@@ -1,26 +1,34 @@
 // src/context/AuthContext.jsx
 import { createContext, useState, useContext, useEffect } from "react";
 import api from "../utils/axiosInstance";
+import { useLocation } from "react-router";
 
 const AuthContext = createContext();
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+    const location = useLocation();
 
-  useEffect(() => {
+
+ useEffect(() => {
   const fetchUser = async () => {
     try {
-      const res = await api.get("/auth/profile"); // sends cookie automatically
+      const res = await api.get("/auth/profile");
       setUser(res.data.user);
     } catch (err) {
-      setUser(null);
+      console.log("Session expired or not logged in");
+      setUser(null); // ❌ don’t reload, just reset user
     } finally {
       setLoading(false);
     }
   };
-  fetchUser();
-}, []);
+  if (location.pathname !== "/login" && location.pathname !== "/register") {
+      fetchUser();
+    } else {
+      setLoading(false);
+    }
+  }, [location.pathname]);
 
 
   const login = async (email, password) => {
