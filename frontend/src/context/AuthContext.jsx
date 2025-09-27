@@ -1,6 +1,5 @@
 // src/context/AuthContext.jsx
 import { createContext, useState, useContext, useEffect } from "react";
-import { useLocation } from "react-router-dom";
 import api from "../utils/axiosInstance";
 import { useLocation } from "react-router";
 
@@ -9,20 +8,26 @@ const AuthContext = createContext();
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const location = useLocation()
 
- useEffect(() => {
-  const fetchUser = async () => {
-    try {
-      const res = await api.get("/auth/profile");
-      setUser(res.data.user);
-    } catch (err) {
-      setUser(null);
-    } finally {
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const res = await api.get("/auth/profile");
+        setUser(res.data.user);
+      } catch (err) {
+        setUser(null);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (!["/login", "/register"].includes(location.pathname) && !user) {
+      fetchUser();
+    } else {
       setLoading(false);
     }
-  };
-  fetchUser();
-}, []);
+  }, []);
 
 
   const login = async (email, password) => {

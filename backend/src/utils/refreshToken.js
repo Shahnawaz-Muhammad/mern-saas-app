@@ -1,3 +1,6 @@
+import jwt from "jsonwebtoken";
+import User from "../models/User.js";
+
 export const refreshAccessToken = async (req, res) => {
   const { refreshToken } = req.cookies;
   if (!refreshToken) {
@@ -6,14 +9,17 @@ export const refreshAccessToken = async (req, res) => {
 
   try {
     const decoded = jwt.verify(refreshToken, process.env.REFRESH_SECRET);
-    const user = await User.findById(decoded.id).select("-password");
-    if (!user) return res.status(404).json({ message: "User not found" });
 
-    // new access token
+    // 🔑 Make sure user still exists
+    const user = await User.findById(decoded.id).select("-password");
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
     const accessToken = jwt.sign(
       { id: user._id, role: user.role },
       process.env.JWT_SECRET,
-      { expiresIn: "15m" }
+      { expiresIn: process.env.JWT_EXPIRE || "15m" }
     );
 
     res.cookie("accessToken", accessToken, {
@@ -23,7 +29,7 @@ export const refreshAccessToken = async (req, res) => {
       maxAge: 15 * 60 * 1000,
     });
 
-    res.json({
+    return res.json({
       message: "Access token refreshed",
       user: {
         id: user._id,
@@ -33,6 +39,7 @@ export const refreshAccessToken = async (req, res) => {
       },
     });
   } catch (err) {
+    console.error("Refresh failed:", err);
     res.status(403).json({ message: "Invalid refresh token" });
   }
 };

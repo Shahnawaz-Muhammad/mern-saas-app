@@ -1,4 +1,5 @@
 import User from "../models/User.js";
+import asyncHandler from "express-async-handler"
 
 // @desc   Get all users (customers, admins, restaurant owners)
 // @route  GET /api/admin/users
@@ -47,11 +48,20 @@ const deleteUser = async (req, res) => {
 // @desc   Get all restaurants (pending + approved + declined)
 // @route  GET /api/admin/restaurants
 // @access SuperAdmin
-export const getAllRestaurants = (req, res) => {
+export const getAllRestaurants = asyncHandler(async (req, res) => {
+  let filter = { status: "approved" };
+
+  if (req.user && (req.user.role === "superadmin")) {
+    filter = {}; // admins can see all
+  }
+
+  const restaurants = await Restaurant.find(filter).populate("owner", "name email");
+
   res.status(200).json({
+    restaurants,
     message: "Fetched all restaurants (pending/approved/declined)",
   });
-};
+});
 
 // @desc   Approve a restaurant registration
 // @route  PUT /api/admin/restaurants/:id/approve
