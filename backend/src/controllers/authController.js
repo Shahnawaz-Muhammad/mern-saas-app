@@ -15,7 +15,7 @@ const registerUser = async (req, res) => {
     }
 
     try {
-      generateToken(res, user._id); // <-- Wrap this in its own try-catch
+      generateToken(res, user._id);
     } catch (tokenErr) {
       console.error("Token generation failed:", tokenErr);
       return res.status(500).json({ message: "Token generation failed" });
