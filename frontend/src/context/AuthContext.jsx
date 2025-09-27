@@ -1,5 +1,6 @@
 // src/context/AuthContext.jsx
 import { createContext, useState, useContext, useEffect } from "react";
+import { useLocation } from "react-router-dom";
 import api from "../utils/axiosInstance";
 
 const AuthContext = createContext();
@@ -7,20 +8,29 @@ const AuthContext = createContext();
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const location = useLocation();
 
-  useEffect(() => {
+ useEffect(() => {
   const fetchUser = async () => {
     try {
-      const res = await api.get("/auth/profile"); // sends cookie automatically
+      const res = await api.get("/auth/profile");
       setUser(res.data.user);
     } catch (err) {
+      console.log("Session expired or not logged in", err);
       setUser(null);
     } finally {
       setLoading(false);
     }
   };
-  fetchUser();
-}, []);
+
+  // only fetch if not login/register page AND no user yet
+  if (!["/login", "/register"].includes(location.pathname) && !user) {
+    fetchUser();
+  } else {
+    setLoading(false);
+  }
+}, [location.pathname]);
+
 
 
   const login = async (email, password) => {
@@ -42,18 +52,18 @@ export function AuthProvider({ children }) {
     }
   };
 
- const logout = async () => {
-  try {
-    const res = await api.post("/auth/logout");
-    console.log("Logout response:", res.data);
-  } catch (err) {
-    console.error("Logout failed:", err);
-    throw err; // rethrow if truly an error
-  } finally {
-    setUser(null);
-    localStorage.removeItem("user");
-  }
-};
+  const logout = async () => {
+    try {
+      const res = await api.post("/auth/logout");
+      console.log("Logout response:", res.data);
+    } catch (err) {
+      console.error("Logout failed:", err);
+      throw err; // rethrow if truly an error
+    } finally {
+      setUser(null);
+      localStorage.removeItem("user");
+    }
+  };
 
 
   return (

@@ -6,3 +6,7 @@ export const getAllUsers = async () => {
   return res.data;
 };
 
+export const updateUserRole = async (userId, role) => {
+  const res = await api.put("/admin/users/role", { userId, role });
+  return res.data;
+};

@@ -1,5 +1,5 @@
 import User from "../models/User.js";
-import generateToken from "../utils/generateToken.js";
+import { setAuthCookies } from "../utils/generateToken.js";
 
 const registerUser = async (req, res) => {
   const { name, email, password } = req.body;
@@ -42,7 +42,7 @@ const loginUser = async (req, res) => {
     if (!user || !(await user.matchPassword(password))) {
       return res.status(401).json({ message: "Invalid email or password" });
     }
-    generateToken(res, user._id);
+    setAuthCookies(res, user);
     res.status(200).json({
       message: "User logged in successfully",
       user: {
